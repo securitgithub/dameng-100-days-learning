@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>达梦数据库100天学习计划</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-item .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .stat-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+        .phases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .phase-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .phase-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .phase-card .days {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .phase-card .description {
+            color: #333;
+            line-height: 1.6;
+        }
+        .phase-card .phase-progress {
+            margin-top: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .phase-card .phase-progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        .days-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .days-grid h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .filter-btn:not(.active) {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .filter-btn:hover {
+            opacity: 0.8;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .day-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .day-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .day-item.completed {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .day-item.current {
+            border-color: #667eea;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .day-item .day-number {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .day-item .day-category {
+            font-size: 0.7em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+            padding-right: 40px;
+        }
+        .modal-header h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .modal-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .modal-section {
+            margin-bottom: 20px;
+        }
+        .modal-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .modal-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .modal-section li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+        .modal-section li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+        }
+        .modal-section .numbered li:before {
+            content: counter(list-item) ".";
+            font-weight: bold;
+        }
+        .modal-section .numbered {
+            counter-reset: list-item;
+        }
+        .modal-section .numbered li {
+            counter-increment: list-item;
+        }
+        .modal-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .modal-checkbox input {
+            width: 20px;
+            height: 20px;
+        }
+        .resources-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .resources-links a {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9em;
+            transition: opacity 0.3s;
+        }
+        .resources-links a:hover {
+            opacity: 0.8;
+        }
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            .stats {
+                gap: 15px;
+            }
+            .stat-item {
+                padding: 10px 20px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 达梦数据库100天学习计划</h1>
+            <p>从入门到精通，系统化掌握国产数据库核心技术</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number" id="completedDays">0</div>
+                    <div class="label">已完成天数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="totalHours">0h</div>
+                    <div class="label">预计总时长</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" id="progressPercent">0%</div>
+                    <div class="label">完成进度</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <h3>📊 学习进度</h3>
+                <span id="progressText">0/100 天</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="phases" id="phasesContainer"></div>
+
+        <div class="days-grid">
+            <h2>📅 每日学习计划</h2>
+            <div class="filter-buttons" id="filterButtons"></div>
+            <div class="grid" id="daysGrid"></div>
+        </div>
+
+        <footer>
+            <p>💡 坚持100天，成为达梦数据库专家</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="https://eco.dameng.com/document/dm/zh-cn/" target="_blank" style="color: white;">官方文档</a> |
+                <a href="https://eco.dameng.com/document/dm/zh-cn/start/" target="_blank" style="color: white;">快速上手</a> |
+                <a href="https://eco.dameng.com/document/dm/zh-cn/ops/" target="_blank" style="color: white;">运维指南</a>
+            </p>
+        </footer>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span id="modalCategory"></span>
+                    <span id="modalDuration"></span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>🎯 学习目标</h3>
+                <ul id="modalTopics"></ul>
+            </div>
+            <div class="modal-section">
+                <h3>📝 学习任务</h3>
+                <ul id="modalTasks" class="numbered"></ul>
+            </div>
+            <div class="modal-section">
+                <h3>📚 学习资源</h3>
+                <div class="resources-links" id="modalResources"></div>
+            </div>
+            <div class="modal-checkbox">
+                <input type="checkbox" id="completedCheckbox" onchange="toggleComplete()">
+                <label for="completedCheckbox">标记为已完成</label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const learningData = {
+            phases: [
+                { id: 'quickstart', name: '快速入门', days: '1-15', color: '#4CAF50', description: '了解达梦数据库基础概念，完成环境搭建' },
+                { id: 'sql-basic', name: 'SQL基础', days: '16-35', color: '#2196F3', description: '系统学习SQL语法，掌握数据查询和操作' },
+                { id: 'sql-advanced', name: 'SQL高级', days: '36-50', color: '#9C27B0', description: '深入学习高级SQL特性和性能优化' },
+                { id: 'ops', name: '运维管理', days: '51-70', color: '#FF9800', description: '学习备份恢复、性能诊断和故障处理' },
+                { id: 'dev', name: '应用开发', days: '71-85', color: '#E91E63', description: '掌握多种编程语言的数据库连接' },
+                { id: 'ha', name: '高可用架构', days: '86-95', color: '#F44336', description: '学习数据守护、读写分离等高可用方案' },
+                { id: 'practice', name: '综合实践', days: '96-100', color: '#795548', description: '综合实践，巩固所学知识' }
+            ],
+            days: []
+        };
+
+        // 生成100天的学习数据
+        const dayTitles = [
+            // 快速入门 1-15
+            {title: "达梦数据库概述与环境准备", category: "快速入门"},
+            {title: "DM8版本介绍与获取", category: "快速入门"},
+            {title: "Windows环境安装DM8", category: "快速入门"},
+            {title: "Linux环境安装DM8", category: "快速入门"},
+            {title: "配置数据库实例", category: "快速入门"},
+            {title: "启动与停止数据库服务", category: "快速入门"},
+            {title: "DM管理工具入门", category: "快速入门"},
+            {title: "DM数据迁移工具使用", category: "快速入门"},
+            {title: "SQL交互式查询工具", category: "快速入门"},
+            {title: "创建表空间", category: "快速入门"},
+            {title: "用户与权限管理", category: "快速入门"},
+            {title: "创建数据库对象", category: "快速入门"},
+            {title: "从Oracle迁移到DM", category: "快速入门"},
+            {title: "从MySQL迁移到DM", category: "快速入门"},
+            {title: "从其他数据库迁移", category: "快速入门"},
+            // SQL基础 16-35
+            {title: "SQL基础：单表查询", category: "SQL基础"},
+            {title: "SQL基础：查询结果排序", category: "SQL基础"},
+            {title: "SQL基础：多表联合检索", category: "SQL基础"},
+            {title: "SQL基础：数据插入", category: "SQL基础"},
+            {title: "SQL基础：数据更新与删除", category: "SQL基础"},
+            {title: "SQL基础：字符串函数", category: "SQL基础"},
+            {title: "SQL基础：数值函数", category: "SQL基础"},
+            {title: "SQL基础：日期函数", category: "SQL基础"},
+            {title: "SQL基础：日期操作进阶", category: "SQL基础"},
+            {title: "SQL基础：范围处理", category: "SQL基础"},
+            {title: "SQL基础：聚合与分组", category: "SQL基础"},
+            {title: "SQL基础：子查询", category: "SQL基础"},
+            {title: "SQL基础：视图创建与使用", category: "SQL基础"},
+            {title: "SQL基础：同义词使用", category: "SQL基础"},
+            {title: "SQL进阶：触发器基础", category: "SQL基础"},
+            {title: "SQL进阶：闪回查询", category: "SQL基础"},
+            {title: "SQL进阶：物化视图", category: "SQL基础"},
+            {title: "SQL进阶：DBLINK使用", category: "SQL基础"},
+            {title: "SQL进阶：存储过程基础", category: "SQL基础"},
+            {title: "SQL进阶：函数创建与使用", category: "SQL基础"},
+            // SQL高级 36-50
+            {title: "SQL高级：分区表基础", category: "SQL高级"},
+            {title: "SQL高级：复合分区与分区管理", category: "SQL高级"},
+            {title: "SQL高级：层次查询", category: "SQL高级"},
+            {title: "DMSQL：数据类型详解", category: "SQL高级"},
+            {title: "DMSQL：异常处理", category: "SQL高级"},
+            {title: "DMSQL：记录与集合", category: "SQL高级"},
+            {title: "DMSQL：包与嵌套子程序", category: "SQL高级"},
+            {title: "SQL优化：执行计划分析", category: "SQL高级"},
+            {title: "SQL优化：索引优化", category: "SQL高级"},
+            {title: "SQL优化：统计信息管理", category: "SQL高级"},
+            {title: "SQL优化：查询重写", category: "SQL高级"},
+            {title: "SQL优化：并行查询", category: "SQL高级"},
+            {title: "SQL优化：内存优化", category: "SQL高级"},
+            {title: "SQL优化：锁与并发控制", category: "SQL高级"},
+            {title: "SQL综合实战练习", category: "SQL高级"},
+            // 运维管理 51-70
+            {title: "运维基础：安装前准备", category: "运维管理"},
+            {title: "运维基础：单机部署最佳实践", category: "运维管理"},
+            {title: "运维基础：系统资源监控", category: "运维管理"},
+            {title: "运维基础：实例状态监控", category: "运维管理"},
+            {title: "运维基础：运维监控工具", category: "运维管理"},
+            {title: "运维基础：系统健康检查", category: "运维管理"},
+            {title: "运维基础：实例健康检查", category: "运维管理"},
+            {title: "备份恢复：物理备份基础", category: "运维管理"},
+            {title: "备份恢复：物理还原实战", category: "运维管理"},
+            {title: "备份恢复：逻辑备份", category: "运维管理"},
+            {title: "备份恢复：逻辑还原", category: "运维管理"},
+            {title: "备份恢复：实战案例", category: "运维管理"},
+            {title: "性能诊断：性能问题定位", category: "运维管理"},
+            {title: "性能诊断：AWR报告分析", category: "运维管理"},
+            {title: "性能优化：数据库参数优化", category: "运维管理"},
+            {title: "性能优化：SQL调优实战", category: "运维管理"},
+            {title: "故障诊断：SQL类故障", category: "运维管理"},
+            {title: "故障诊断：实例故障", category: "运维管理"},
+            {title: "故障诊断：人为操作故障", category: "运维管理"},
+            {title: "运维综合实战", category: "运维管理"},
+            // 应用开发 71-85
+            {title: "开发基础：JDBC连接", category: "应用开发"},
+            {title: "开发基础：Python连接", category: "应用开发"},
+            {title: "开发基础：.NET连接", category: "应用开发"},
+            {title: "开发基础：Go连接", category: "应用开发"},
+            {title: "开发基础：ODBC连接", category: "应用开发"},
+            {title: "框架集成：MyBatis", category: "应用开发"},
+            {title: "框架集成：Spring Boot", category: "应用开发"},
+            {title: "框架集成：Hibernate/JPA", category: "应用开发"},
+            {title: "框架集成：Django", category: "应用开发"},
+            {title: "框架集成：SQLAlchemy", category: "应用开发"},
+            {title: "开发进阶：大字段处理", category: "应用开发"},
+            {title: "开发进阶：事务控制", category: "应用开发"},
+            {title: "开发进阶：批量操作", category: "应用开发"},
+            {title: "开发进阶：连接池优化", category: "应用开发"},
+            {title: "开发综合实战", category: "应用开发"},
+            // 高可用架构 86-95
+            {title: "高可用：数据守护概述", category: "高可用"},
+            {title: "高可用：数据守护搭建", category: "高可用"},
+            {title: "高可用：读写分离集群", category: "高可用"},
+            {title: "高可用：共享存储集群DSC", category: "高可用"},
+            {title: "高可用：分布式集群DMDPC", category: "高可用"},
+            {title: "高可用：集群健康检查", category: "高可用"},
+            {title: "高可用：主备切换实战", category: "高可用"},
+            {title: "高可用：数据复制DMDRS", category: "高可用"},
+            {title: "高可用：备份策略设计", category: "高可用"},
+            {title: "高可用：容灾方案设计", category: "高可用"},
+            // 综合实践 96-100
+            {title: "综合实践：项目实战", category: "综合实践"},
+            {title: "综合实践：性能调优实战", category: "综合实践"},
+            {title: "综合实践：问题排查实战", category: "综合实践"},
+            {title: "综合实践：最佳实践总结", category: "综合实践"},
+            {title: "学习总结与进阶规划", category: "综合实践"}
+        ];
+
+        // 初始化数据
+        for (let i = 0; i < 100; i++) {
+            const phaseIndex = getPhaseIndex(i + 1);
+            learningData.days.push({
+                day: i + 1,
+                title: dayTitles[i].title,
+                category: dayTitles[i].category,
+                phase: learningData.phases[phaseIndex].id,
+                completed: false
+            });
+        }
+
+        function getPhaseIndex(day) {
+            if (day <= 15) return 0;
+            if (day <= 35) return 1;
+            if (day <= 50) return 2;
+            if (day <= 70) return 3;
+            if (day <= 85) return 4;
+            if (day <= 95) return 5;
+            return 6;
+        }
+
+        // 加载保存的进度
+        function loadProgress() {
+            const saved = localStorage.getItem('dameng100days');
+            if (saved) {
+                const data = JSON.parse(saved);
+                data.forEach((completed, index) => {
+                    if (learningData.days[index]) {
+                        learningData.days[index].completed = completed;
+                    }
+                });
+            }
+        }
+
+        // 保存进度
+        function saveProgress() {
+            const completed = learningData.days.map(d => d.completed);
+            localStorage.setItem('dameng100days', JSON.stringify(completed));
+        }
+
+        // 更新进度显示
+        function updateProgress() {
+            const completed = learningData.days.filter(d => d.completed).length;
+            const percent = Math.round((completed / 100) * 100);
+            
+            document.getElementById('completedDays').textContent = completed;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressText').textContent = `${completed}/100 天`;
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressBar').textContent = percent + '%';
+            
+            // 计算总时长（假设每天平均2.2小时）
+            const totalHours = Math.round(completed * 2.2);
+            document.getElementById('totalHours').textContent = totalHours + 'h';
+        }
+
+        // 渲染阶段卡片
+        function renderPhases() {
+            const container = document.getElementById('phasesContainer');
+            container.innerHTML = '';
+            
+            learningData.phases.forEach(phase => {
+                const phaseDays = learningData.days.filter(d => d.phase === phase.id);
+                const completedDays = phaseDays.filter(d => d.completed).length;
+                const progress = Math.round((completedDays / phaseDays.length) * 100);
+                
+                const card = document.createElement('div');
+                card.className = 'phase-card';
+                card.innerHTML = `
+                    <h3>${phase.name}</h3>
+                    <div class="days">第${phase.days}天 (${phaseDays.length}天)</div>
+                    <div class="description">${phase.description}</div>
+                    <div class="phase-progress">
+                        <div class="phase-progress-bar" style="width: ${progress}%; background: ${phase.color}"></div>
+                    </div>
+                `;
+                card.onclick = () => filterByPhase(phase.id);
+                container.appendChild(card);
+            });
+        }
+
+        // 渲染筛选按钮
+        function renderFilters() {
+            const container = document.getElementById('filterButtons');
+            container.innerHTML = '<button class="filter-btn active" onclick="filterByPhase(\'all\')">全部</button>';
+            
+            learningData.phases.forEach(phase => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.style.background = phase.color;
+                btn.textContent = phase.name;
+                btn.onclick = () => filterByPhase(phase.id);
+                container.appendChild(btn);
+            });
+        }
+
+        // 筛选显示
+        let currentFilter = 'all';
+        function filterByPhase(phaseId) {
+            currentFilter = phaseId;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.filter-btn').forEach((btn, index) => {
+                if ((phaseId === 'all' && index === 0) || 
+                    (index > 0 && learningData.phases[index - 1].id === phaseId)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderDays();
+        }
+
+        // 渲染天数格子
+        function renderDays() {
+            const container = document.getElementById('daysGrid');
+            container.innerHTML = '';
+            
+            learningData.days.forEach(day => {
+                if (currentFilter !== 'all' && day.phase !== currentFilter) return;
+                
+                const item = document.createElement('div');
+                item.className = 'day-item';
+                if (day.completed) item.classList.add('completed');
+                
+                const phase = learningData.phases.find(p => p.id === day.phase);
+                item.innerHTML = `
+                    <div class="day-number">Day ${day.day}</div>
+                    <div class="day-category">${day.category}</div>
+                `;
+                item.onclick = () => openModal(day.day);
+                container.appendChild(item);
+            });
+        }
+
+        let currentDay = null;
+
+        // 打开详情弹窗
+        function openModal(dayNum) {
+            currentDay = dayNum;
+            const day = learningData.days[dayNum - 1];
+            
+            document.getElementById('modalTitle').textContent = `Day ${dayNum}: ${day.title}`;
+            document.getElementById('modalCategory').textContent = `📂 ${day.category}`;
+            document.getElementById('modalDuration').textContent = `⏱️ 约2小时`;
+            document.getElementById('completedCheckbox').checked = day.completed;
+            
+            // 示例学习目标和任务
+            const topics = [
+                "理解核心概念",
+                "掌握基本操作",
+                "实践练习",
+                "总结归纳"
+            ];
+            const tasks = [
+                "阅读官方文档相关章节",
+                "完成实践练习",
+                "记录学习笔记"
+            ];
+            
+            document.getElementById('modalTopics').innerHTML = topics.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('modalTasks').innerHTML = tasks.map(t => `<li>${t}</li>`).join('');
+            document.getElementById('modalResources').innerHTML = `
+                <a href="https://eco.dameng.com/document/dm/zh-cn/" target="_blank">官方文档</a>
+                <a href="https://eco.dameng.com/document/dm/zh-cn/start/" target="_blank">快速上手</a>
+            `;
+            
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            currentDay = null;
+        }
+
+        function toggleComplete() {
+            if (currentDay === null) return;
+            
+            const checkbox = document.getElementById('completedCheckbox');
+            learningData.days[currentDay - 1].completed = checkbox.checked;
+            
+            saveProgress();
+            updateProgress();
+            renderPhases();
+            renderDays();
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // 初始化
+        loadProgress();
+        updateProgress();
+        renderPhases();
+        renderFilters();
+        renderDays();
+    </script>
+</body>
+</html>
